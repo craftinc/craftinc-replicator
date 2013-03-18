@@ -27,7 +27,7 @@ public class Plugin extends JavaPlugin
     @Override
     public void onLoad()
     {
-        //ConfigurationSerialization.registerClass(Replicator.class);
+        ConfigurationSerialization.registerClass(Replicator.class);
     }
 
     @Override

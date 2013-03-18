@@ -24,6 +24,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Commands implements CommandExecutor
 {
@@ -47,6 +48,28 @@ public class Commands implements CommandExecutor
             {
                 sender.sendMessage(Messages.helpGeneral(player));
                 return true;
+            }
+
+            // checkversion
+            if ( args.length > 0 && args[0].equalsIgnoreCase("checkversion") )
+            {
+                if ( !sender.hasPermission("craftinc.replicator.update") )
+                {
+                    sender.sendMessage(Messages.noPermissionCheckversion);
+                    return false;
+                }
+
+                if ( UpdateHelper.newVersionAvailable() )
+                {
+                    sender.sendMessage(
+                            Messages.updateMessage(UpdateHelper.cachedLatestVersion, UpdateHelper.getCurrentVersion()));
+                    return true;
+                }
+                else
+                {
+                    sender.sendMessage(Messages.noUpdateAvailable);
+                    return true;
+                }
             }
 
             // info
@@ -79,9 +102,55 @@ public class Commands implements CommandExecutor
                 // replicator specified as argument
                 else if ( args.length == 2 )
                 {
-
+                    Replicator rep = Replicator.getByName(args[1], player);
+                    if (rep == null)
+                    {
+                        sender.sendMessage(Messages.noReplicatorWithName(args[1]));
+                        return true;
+                    }
+                    sender.sendMessage(Messages.info(new ArrayList<Replicator>(Arrays.asList(new Replicator[]{rep}))));
+                    return true;
                 }
             }
+
+            // list
+            if (args.length == 1 && args[0].equalsIgnoreCase("list"))
+            {
+                sender.sendMessage(Messages.list(Replicator.getReplicatorsByOwner(), Replicator.getReplicatorsByUser()));
+                return true;
+            }
+
+            // addowner
+            if (args.length > 1 && args[0].equalsIgnoreCase("addowner"))
+            {
+                // looking at replicator
+                if (args.length == 2)
+                {
+                    // get block where the player is looking at
+                    Block potentialReplicatorBlock = player.getTargetBlock(BlockUtil.transparentBlocks, 100);
+
+                    // get zero or more valid replicator centers
+                    ArrayList<Location> replicatorCenters = Replicator
+                            .getReplicators(potentialReplicatorBlock.getLocation());
+
+                    // no replicator in sight
+                    if ( replicatorCenters.size() == 0 )
+                    {
+                        sender.sendMessage(Messages.noReplicatorInSight);
+                        return true;
+                    }
+
+                    ArrayList<Replicator> replicators = new ArrayList<Replicator>();
+                    for ( Location replicatorCenter : replicatorCenters )
+                    {
+                        Replicator replicator = Replicator.getOrCreate();
+                        replicator.addOwner(args[1]);
+                        sender.sendMessage(Messages.addedOwner(args[1], replicator));
+                    }
+                    return true;
+                }
+            }
+
         }
 
 

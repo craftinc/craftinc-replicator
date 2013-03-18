@@ -109,7 +109,7 @@ public class Messages
         sb.append(ChatColor.YELLOW + "The following replicators have been found:" + NEWLINE);
         for (Replicator r: replicators)
         {
-            sb.append(ChatColor.GOLD + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + NEWLINE);
+            sb.append(ChatColor.GOLD + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + ":" + NEWLINE);
             sb.append(ChatColor.GREEN + "Owners:" + NEWLINE);
             for (String owner: r.getOwners())
             {
@@ -125,5 +125,33 @@ public class Messages
         return sb.toString();
     }
 
+    public static String list(ArrayList<Replicator> repByOwner, ArrayList<Replicator> repByUser)
+    {
+        StringBuilder sb = new StringBuilder();
 
+        sb.append(ChatColor.YELLOW + "Replicators where you are owner:" + NEWLINE);
+        for (Replicator r: repByOwner)
+        {
+            sb.append(ChatColor.WHITE + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + NEWLINE);
+        }
+        sb.append(NEWLINE);
+
+        sb.append(ChatColor.YELLOW + "Replicators where you are user:" + NEWLINE);
+        for (Replicator r: repByUser)
+        {
+            sb.append(ChatColor.WHITE + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + NEWLINE);
+        }
+
+        return sb.toString();
+    }
+
+    public static String noReplicatorWithName( String replicatorName )
+    {
+        return ChatColor.RED + "No replicator with name: " + replicatorName + " found or you don't have permission for that replicator.";
+    }
+
+    public static String addedOwner( String newOwner, Replicator replicator )
+    {
+        return ChatColor.GREEN + "New owner for " + replicator.id +
+    }
 }
