@@ -27,3 +27,6 @@ commands:
     description: Shows help for Craft Inc. Replicate
 
 permissions:
+  craftinc.replicator.update:
+    default: op
+    description: Allows to check for updates and also get notified on login if a new version is available.

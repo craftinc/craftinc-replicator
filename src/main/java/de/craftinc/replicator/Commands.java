@@ -16,37 +16,21 @@
 */
 package de.craftinc.replicator;
 
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class Plugin extends JavaPlugin
+public class Commands implements CommandExecutor
 {
-    public static JavaPlugin instance;
-
     @Override
-    public void onLoad()
+    public boolean onCommand( CommandSender sender, Command command, String label, String[] args )
     {
-        ConfigurationSerialization.registerClass(Replicator.class);
-    }
-
-    @Override
-    public void onDisable()
-    {
-    }
-
-    @Override
-    public void onEnable()
-    {
-        Plugin.instance = this;
-
-        // create listeners
-
-        // commands
-        Commands commandExecutor = new Commands();
-        getCommand("replicate").setExecutor(commandExecutor);
-
-        // register listeners
-        PluginManager pm = this.getServer().getPluginManager();
+        // Check if command comes from a player.
+        if ( !( sender instanceof Player ) )
+        {
+            sender.sendMessage(Messages.commandIssuedByNonPlayer);
+            return true;
+        }
     }
 }
