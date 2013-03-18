@@ -65,7 +65,7 @@ public class Replicator {
         else return false;
     }
 
-    private BlockFace getDirection() {
+    private BlockFace getDirection(Location pumpkin) {
 
         if(this.pumpkin.getBlock().get)
 
@@ -76,8 +76,10 @@ public class Replicator {
         else return null;
     }
 
-    private boolean isValid(){
+    private boolean isValid(Location pumpkin){
+        if(pumpkin.getBlock().getRelative(BlockFace.DOWN).equals(Material.DIAMOND_BLOCK)){
 
+        }
         return false;
     }
 
