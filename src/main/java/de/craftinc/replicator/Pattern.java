@@ -19,13 +19,6 @@ package de.craftinc.replicator;
 
 import org.bukkit.Material;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Mochaccino
- * Date: 18.03.13
- * Time: 20:33
- * To change this template use File | Settings | File Templates.
- */
 public class Pattern {
     private static final Material[][][] repPattern = {{{Material.OBSIDIAN,Material.OBSIDIAN,null},{Material.MOSSY_COBBLESTONE,Material.OBSIDIAN,null},{Material.GLOWSTONE,Material.OBSIDIAN,null}},
                                         {{Material.GOLD_BLOCK,Material.DIAMOND_BLOCK,Material.OBSIDIAN},{Material.AIR,Material.JACK_O_LANTERN,Material.OBSIDIAN},{Material.MOSSY_COBBLESTONE,Material.OBSIDIAN,null}},

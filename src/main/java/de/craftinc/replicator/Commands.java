@@ -16,10 +16,14 @@
 */
 package de.craftinc.replicator;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
 
 public class Commands implements CommandExecutor
 {
@@ -32,5 +36,57 @@ public class Commands implements CommandExecutor
             sender.sendMessage(Messages.commandIssuedByNonPlayer);
             return true;
         }
+
+        // commands
+        if ( command.getName().equalsIgnoreCase("replicate") || command.getAliases().get(0).equalsIgnoreCase("repli") )
+        {
+            Player player = ( (Player) sender ).getPlayer();
+
+            // help
+            if ( args.length == 0 || ( args.length > 0 && args[0].equalsIgnoreCase("help") ) )
+            {
+                sender.sendMessage(Messages.helpGeneral(player));
+                return true;
+            }
+
+            // info
+            if ( args.length > 0 && args[0].equalsIgnoreCase("info") )
+            {
+                // looking at replicator
+                if ( args.length == 1 )
+                {
+                    // get block where the player is looking at
+                    Block potentialReplicatorBlock = player.getTargetBlock(BlockUtil.transparentBlocks, 100);
+
+                    // get zero or more valid replicator centers
+                    ArrayList<Location> replicatorCenters = Replicator
+                            .getReplicators(potentialReplicatorBlock.getLocation());
+
+                    if ( replicatorCenters.size() == 0 )
+                    {
+                        sender.sendMessage(Messages.noReplicatorInSight);
+                        return true;
+                    }
+
+                    ArrayList<Replicator> replicators = new ArrayList<Replicator>();
+                    for ( Location replicatorCenter : replicatorCenters )
+                    {
+                        replicators.add(Replicator.getOrCreate(replicatorCenter));
+                    }
+                    sender.sendMessage(Messages.info(replicators));
+                    return true;
+                }
+                // replicator specified as argument
+                else if ( args.length == 2 )
+                {
+
+                }
+            }
+        }
+
+
+        // if some unknown argument has been given, show help message
+        sender.sendMessage(Messages.helpGeneral(( (Player) sender ).getPlayer()));
+        return true;
     }
 }

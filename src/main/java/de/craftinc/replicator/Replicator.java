@@ -23,13 +23,6 @@ import org.bukkit.Material;
 
 import java.util.ArrayList;
 
-/**
- * Created with IntelliJ IDEA.
- * User: starback
- * Date: 18.03.13
- * Time: 16:26
- * To change this template use File | Settings | File Templates.
- */
 public class Replicator {
 
     private ArrayList<String> owners;

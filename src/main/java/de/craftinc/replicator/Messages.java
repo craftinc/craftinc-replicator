@@ -19,14 +19,25 @@ package de.craftinc.replicator;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+
 public class Messages
 {
     private static final String NEWLINE = "\n";
 
     private static final String pluginName = Plugin.instance.getDescription().getName();
 
-    private static String makeCmd( Player player, String command, String explanation, String[] permissions, String... args )
+    private static String makeCmd( Player player, String command, String explanation, String[] permissions,
+                                   String... args )
     {
+        for ( String perm : permissions )
+        {
+            if ( !player.hasPermission(perm) )
+            {
+                return "";
+            }
+        }
+
         StringBuilder sb = new StringBuilder();
 
         // command
@@ -56,21 +67,16 @@ public class Messages
         return sb.toString();
     }
 
-    public static String helpGeneral(Player player) =
-            ChatColor.GREEN + pluginName + " - Usage:" + NEWLINE +
-            makeCmd("help", "shows this help", null) +
-            makeCmd("adduser | deluser",
-                    "Add or remove a player's right to use the replicator in front of you or the replicator given by \"id\".",
-                    null, "<player>", "[id]") +
-            makeCmd("addowner | delowner",
-                    "Add or remove a player's right to use AND add or remove other users and owners to the replicator in front of you or the replicator given by \"id\".",
-                    null, "<player>", "[id]") +
-            makeCmd("checkversion", "Checks for a newer version.", new String[]{"craftinc.replicator.update"});
-
-    public static String borderCreationSuccessful
-            = ChatColor.YELLOW + "New border was set " +
-              ChatColor.GREEN + "successfully" +
-              ChatColor.YELLOW + "!";
+    public static String helpGeneral( Player player )
+    {
+        return ChatColor.GREEN + pluginName + " - Usage:" + NEWLINE +
+        makeCmd(player, "help", "shows this help", null) +
+        makeCmd(player, "adduser | deluser", "Add or remove a player's right to use the replicator in front of you or the replicator given by \"id\".", null, "<player>", "[id]") +
+        makeCmd(player, "addowner | delowner", "Add or remove a player's right to use AND add or remove other users and owners to the replicator in front of you or the replicator given by \"id\".", null, "<player>", "[id]") +
+        makeCmd(player, "list", "Lists all your replicators.", null) +
+        makeCmd(player, "info", "Get information about the replicator in front of you or the replicator given by \"id\".", null, "[id]") +
+        makeCmd(player, "checkversion", "Checks for a newer version.", new String[] { "craftinc.replicator.update" });
+    }
 
     public static String commandIssuedByNonPlayer
             = ChatColor.RED + "Only a player can use " + pluginName + " commands!";
@@ -80,6 +86,9 @@ public class Messages
 
     public static String noPermissionCheckversion =
             ChatColor.RED + "Sorry, you don't have permission to check for new versions.";
+
+    public static String noReplicatorInSight =
+            ChatColor.RED + "You are not looking at an replicator.";
 
     public static String updateMessage( String newVersion, String curVersion )
     {
@@ -93,4 +102,26 @@ public class Messages
 
     public static String noUpdateAvailable =
             ChatColor.YELLOW + "No updates available.";
+
+    public static String info( ArrayList<Replicator> replicators )
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ChatColor.YELLOW + "The following replicators have been found:" + NEWLINE);
+        for (Replicator r: replicators)
+        {
+            sb.append(ChatColor.GOLD + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + NEWLINE);
+            sb.append(ChatColor.GREEN + "Owners:" + NEWLINE);
+            for (String owner: r.getOwners())
+            {
+                sb.append(ChatColor.WHITE + owner + " ");
+            }
+            sb.append(NEWLINE + ChatColor.GREEN + "Users:" + NEWLINE);
+            for (String user: r.getUsers())
+            {
+                sb.append(ChatColor.WHITE + user + " ");
+            }
+            sb.append(NEWLINE);
+        }
+        return sb.toString();
+    }
 }

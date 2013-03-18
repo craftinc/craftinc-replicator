@@ -21,10 +21,10 @@ softdepend: [Multiverse-Core]
 authors: [ddidderr, beuth_el_max]
 website: http://www.craftinc.de/craftinc-replicator
 
-
 commands:
   replicate:
     description: Shows help for Craft Inc. Replicate
+    aliases: [repli]
 
 permissions:
   craftinc.replicator.update:
