@@ -95,5 +95,4 @@ public class Replicator {
         return pumpkins;
     }
 
-
 }
