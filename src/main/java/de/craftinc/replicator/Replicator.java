@@ -22,19 +22,23 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Replicator {
 
     private ArrayList<String> owners;
     private ArrayList<String> users;
+    private String name;
+    private static HashMap<Location,Replicator> allReplicators;
 
     private Location center;
 
-    public Replicator(String firstOwner, Location spawn, Location center) {
+    public Replicator(String firstOwner, Location center) {
         this.owners = new ArrayList<String>();
         this.users = new ArrayList<String>();
         this.owners.add(firstOwner);
         this.center = center;
+        name = center.getWorld()+","+center.getBlockX()+","+center.getBlockY()+","+center.getBlockZ();
     }
 
     public void addUser(String user) {
@@ -53,6 +57,33 @@ public class Replicator {
     public boolean rmOwner(String owner) {
         if(this.owners.remove(owner)) return true;
         else return false;
+    }
+
+    public boolean isOwner(String player){
+        for(String owner:owners){
+            if(owner.equals(player)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isUser(String player){
+        for(String user:users){
+            if(user.equals(player)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setName(String newName){
+        this.name=newName;
+        //TODO: Save List
+    }
+
+    public String getName(){
+        return name;
     }
 
     public static ArrayList<Location> getReplicators(Location currentBlock){
@@ -76,6 +107,9 @@ public class Replicator {
 
     private static boolean isValid(Location center){
         Material[][][] pattern = getPattern(center);
+        if(pattern==null){
+            return false;
+        }
         for(int x=0;x<=2;x++){
             for(int y=0;y<=2;y++){
                 for(int z=0;z<=2;z++){
@@ -102,4 +136,49 @@ public class Replicator {
         return centers;
     }
 
+    public static Replicator getOrCreate(Location loc, String playerName) {     //Returns null, if player is not owner or user of the replicator
+        Replicator rep = allReplicators.get(loc);
+        if(rep!=null){
+            if(rep.isOwner(playerName)||rep.isUser(playerName)){
+                return allReplicators.get(loc);
+            }
+            else return null;
+        }
+        else {
+            rep = new Replicator(playerName,loc);
+            allReplicators.put(loc, rep);
+            return rep;
+        }
+    }
+
+    public static Replicator getByName(String repName, String playerName){ //Returns null, if player is not owner or user or if replicator does not exist
+        for(Replicator rep: allReplicators.values()){
+            if(rep.getName().equals(repName)){
+                if(rep.isOwner(playerName)||rep.isUser(playerName)){
+                    return rep;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<Replicator> getReplicatorsByOwner(String playerName){
+        ArrayList<Replicator> reps = new ArrayList<Replicator>();
+        for(Replicator rep: allReplicators.values()){
+            if(rep.isOwner(playerName)){
+                reps.add(rep);
+            }
+        }
+        return reps;
+    }
+
+    public ArrayList<Replicator> getReplicatorsByUser(String playerName){
+        ArrayList<Replicator> reps = new ArrayList<Replicator>();
+        for(Replicator rep: allReplicators.values()){
+            if(rep.isUser(playerName)){
+                reps.add(rep);
+            }
+        }
+        return reps;
+    }
 }
