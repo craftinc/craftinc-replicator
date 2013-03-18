@@ -20,7 +20,6 @@ package de.craftinc.replicator;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
@@ -36,15 +35,13 @@ public class Replicator {
     private ArrayList<String> owners;
     private ArrayList<String> users;
 
-    private Location spawn;
-    private Location pumpkin;
+    private Location center;
 
-    public Replicator(String firstOwner, Location spawn, Location pumpkin) {
+    public Replicator(String firstOwner, Location spawn, Location center) {
         this.owners = new ArrayList<String>();
         this.users = new ArrayList<String>();
         this.owners.add(firstOwner);
-        this.spawn = spawn;
-        this.pumpkin = pumpkin;
+        this.center = center;
     }
 
     public void addUser(String user) {
@@ -65,36 +62,51 @@ public class Replicator {
         else return false;
     }
 
-    private BlockFace getDirection(Location pumpkin) {
-
-        if(this.pumpkin.getBlock().get)
-
-        if(this.spawn.getBlock().getRelative(BlockFace.EAST).equals(this.pumpkin.getBlock())) return BlockFace.EAST;
-        else if(this.spawn.getBlock().getRelative(BlockFace.SOUTH).equals(this.pumpkin.getBlock())) return BlockFace.SOUTH;
-        else if(this.spawn.getBlock().getRelative(BlockFace.WEST).equals(this.pumpkin.getBlock())) return BlockFace.WEST;
-        else if(this.spawn.getBlock().getRelative(BlockFace.NORTH).equals(this.pumpkin.getBlock())) return BlockFace.NORTH;
-        else return null;
-    }
-
-    private boolean isValid(Location pumpkin){
-        if(pumpkin.getBlock().getRelative(BlockFace.DOWN).equals(Material.DIAMOND_BLOCK)){
-
+    public static ArrayList<Location> getReplicators(Location currentBlock){
+        ArrayList<Location> replicators = new ArrayList<Location>();
+        ArrayList<Location> centers = getCenters(currentBlock);
+        for(Location center:centers){
+            if(isValid(center)){
+                replicators.add(center);
+            }
         }
-        return false;
+        return replicators;
     }
 
-    private ArrayList<Location> getPumpkin(Location currentBlock){
-        ArrayList<Location> pumpkins = new ArrayList<Location>();
+    private static Material[][][] getPattern(Location center){
+        if(center.getBlock().getRelative(BlockFace.NORTH).getType().equals(Material.AIR)) return Pattern.getNorth();
+        if(center.getBlock().getRelative(BlockFace.SOUTH).getType().equals(Material.AIR)) return Pattern.getSouth();
+        if(center.getBlock().getRelative(BlockFace.WEST).getType().equals(Material.AIR)) return Pattern.getWest();
+        if(center.getBlock().getRelative(BlockFace.EAST).getType().equals(Material.AIR)) return Pattern.getEast();
+        return null;
+    }
+
+    private static boolean isValid(Location center){
+        Material[][][] pattern = getPattern(center);
+        for(int x=0;x<=2;x++){
+            for(int y=0;y<=2;y++){
+                for(int z=0;z<=2;z++){
+                    if((pattern[x][y][z]!=center.getBlock().getRelative(x-1,y-1,z-1).getType())&&((pattern[x][y][z]!=null))){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private static ArrayList<Location> getCenters(Location currentBlock){
+        ArrayList<Location> centers = new ArrayList<Location>();
         Location nextBlock;
         for(int x=-1;x<=1;x++){
             for(int y=-1;y<=1;y++){
                 for(int z=-1;z<=1;z++){
                     nextBlock = currentBlock.getBlock().getRelative(x,y,z).getLocation();
-                    if(nextBlock.getBlock().getType().equals(Material.JACK_O_LANTERN)) pumpkins.add(nextBlock);
+                    if(nextBlock.getBlock().getType().equals(Pattern.getCenter())) centers.add(nextBlock);
                 }
             }
         }
-        return pumpkins;
+        return centers;
     }
 
 }

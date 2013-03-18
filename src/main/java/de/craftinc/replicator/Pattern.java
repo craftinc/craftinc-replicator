@@ -32,15 +32,15 @@ public class Pattern {
                                         {{Material.OBSIDIAN,Material.OBSIDIAN,null},{Material.MOSSY_COBBLESTONE,Material.OBSIDIAN,null},{Material.GLOWSTONE,Material.OBSIDIAN,null}}};
     //direction north (replicator direction)
 
-    public Material getCenter(){
+    public static Material getCenter(){
         return repPattern[1][1][1];
     }
 
-    public Material[][][] getNorth(){
+    public static Material[][][] getNorth(){
         return repPattern;
     }
 
-    public Material[][][] getSouth(){
+    public static Material[][][] getSouth(){
         Material[][][] newPattern = new Material[3][3][3];
         for(int x=0;x<=2;x++){
             for(int y=0;y<=2;y++){
@@ -52,7 +52,7 @@ public class Pattern {
         return newPattern;
     }
 
-    public Material[][][] getWest(){
+    public static Material[][][] getWest(){
         Material[][][] newPattern = new Material[3][3][3];
         for(int x=0;x<=2;x++){
             for(int y=0;y<=2;y++){
@@ -64,7 +64,7 @@ public class Pattern {
         return newPattern;
     }
 
-    public Material[][][] getEast(){
+    public static Material[][][] getEast(){
         Material[][][] westPattern = getWest();
         Material[][][] newPattern = new Material[3][3][3];
         for(int y=0;y<=2;y++){
