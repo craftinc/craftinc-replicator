@@ -19,6 +19,7 @@ package de.craftinc.replicator;
 
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -79,4 +80,20 @@ public class Replicator {
 
         return false;
     }
+
+    private ArrayList<Location> getPumpkin(Location currentBlock){
+        ArrayList<Location> pumpkins = new ArrayList<Location>();
+        Location nextBlock;
+        for(int x=-1;x<=1;x++){
+            for(int y=-1;y<=1;y++){
+                for(int z=-1;z<=1;z++){
+                    nextBlock = currentBlock.getBlock().getRelative(x,y,z).getLocation();
+                    if(nextBlock.getBlock().getType().equals(Material.JACK_O_LANTERN)) pumpkins.add(nextBlock);
+                }
+            }
+        }
+        return pumpkins;
+    }
+
+
 }
