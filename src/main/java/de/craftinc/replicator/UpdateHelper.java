@@ -1,4 +1,4 @@
-/*  Craft Inc. BorderProtection
+/*  Craft Inc. Replicator
     Copyright (C) 2013  Paul Schulze
 
     This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ public class UpdateHelper
      * The URL from which the Plugin tries to get the latest version.
      */
     @SuppressWarnings("FieldCanBeLocal")
-    private static final String updateUrl = "http://www.craftinc.de/plugins/update/craftinc-borderprotection";
+    private static final String updateUrl = "http://www.craftinc.de/plugins/update/craftinc-replicator";
 
     /**
      * The latest version which was seen on last check.

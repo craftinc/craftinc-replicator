@@ -94,7 +94,7 @@ public class Commands implements CommandExecutor
                     ArrayList<Replicator> replicators = new ArrayList<Replicator>();
                     for ( Location replicatorCenter : replicatorCenters )
                     {
-                        replicators.add(Replicator.getOrCreate(replicatorCenter));
+                        replicators.add(Replicator.getOrCreate(replicatorCenter, player.getName()));
                     }
                     sender.sendMessage(Messages.info(replicators));
                     return true;
@@ -102,29 +102,33 @@ public class Commands implements CommandExecutor
                 // replicator specified as argument
                 else if ( args.length == 2 )
                 {
-                    Replicator rep = Replicator.getByName(args[1], player);
-                    if (rep == null)
+                    Replicator rep = Replicator.getByName(args[1], player.getName());
+                    if ( rep == null )
                     {
                         sender.sendMessage(Messages.noReplicatorWithName(args[1]));
                         return true;
                     }
-                    sender.sendMessage(Messages.info(new ArrayList<Replicator>(Arrays.asList(new Replicator[]{rep}))));
+                    sender.sendMessage(
+                            Messages.info(new ArrayList<Replicator>(Arrays.asList(new Replicator[] { rep }))));
                     return true;
                 }
             }
 
             // list
-            if (args.length == 1 && args[0].equalsIgnoreCase("list"))
+            if ( args.length == 1 && args[0].equalsIgnoreCase("list") )
             {
-                sender.sendMessage(Messages.list(Replicator.getReplicatorsByOwner(), Replicator.getReplicatorsByUser()));
+                sender.sendMessage(
+                        Messages.list(Replicator.getReplicatorsByOwner(player.getName()),
+                                      Replicator.getReplicatorsByUser(player.getName())));
                 return true;
             }
 
-            // addowner
-            if (args.length > 1 && args[0].equalsIgnoreCase("addowner"))
+            // addowner, delowner, adduser, deluser
+            if ( args.length > 1 && ( args[0].equalsIgnoreCase("addowner") || args[0].equalsIgnoreCase("delowner") ||
+                                      args[0].equalsIgnoreCase("adduser") || args[0].equalsIgnoreCase("deluser") ) )
             {
                 // looking at replicator
-                if (args.length == 2)
+                if ( args.length == 2 )
                 {
                     // get block where the player is looking at
                     Block potentialReplicatorBlock = player.getTargetBlock(BlockUtil.transparentBlocks, 100);
@@ -140,17 +144,67 @@ public class Commands implements CommandExecutor
                         return true;
                     }
 
-                    ArrayList<Replicator> replicators = new ArrayList<Replicator>();
                     for ( Location replicatorCenter : replicatorCenters )
                     {
-                        Replicator replicator = Replicator.getOrCreate();
-                        replicator.addOwner(args[1]);
+                        Replicator replicator = Replicator.getOrCreate(replicatorCenter, player.getName());
+                        if ( replicator == null )
+                        {
+                            sender.sendMessage(Messages.noReplicatorInSight);
+                            continue;
+                        }
+                        if ( args[0].equalsIgnoreCase("addowner") )
+                        {
+                            replicator.addOwner(args[1]);
+                        }
+                        else if ( args[0].equalsIgnoreCase("delowner") )
+                        {
+                            replicator.rmOwner(args[1]);
+                        }
+                        else if ( args[0].equalsIgnoreCase("adduser") )
+                        {
+                            replicator.addUser(args[1]);
+                        }
+                        else if ( args[0].equalsIgnoreCase("deluser") )
+                        {
+                            replicator.rmUser(args[1]);
+                        }
+
                         sender.sendMessage(Messages.addedOwner(args[1], replicator));
                     }
                     return true;
                 }
-            }
+                // replicator name specified as argument
+                else if ( args.length == 3 )
+                {
+                    Replicator replicator = Replicator.getByName(args[2], player.getName());
 
+                    if ( replicator == null )
+                    {
+                        sender.sendMessage(Messages.noReplicatorWithName(args[2]));
+                        return true;
+                    }
+
+                    if ( args[0].equalsIgnoreCase("addowner") )
+                    {
+                        replicator.addOwner(args[1]);
+                    }
+                    else if ( args[0].equalsIgnoreCase("delowner") )
+                    {
+                        replicator.rmOwner(args[1]);
+                    }
+                    else if ( args[0].equalsIgnoreCase("adduser") )
+                    {
+                        replicator.addUser(args[1]);
+                    }
+                    else if ( args[0].equalsIgnoreCase("deluser") )
+                    {
+                        replicator.rmUser(args[1]);
+                    }
+
+                    sender.sendMessage(Messages.addedOwner(player.getName(), replicator));
+                    return true;
+                }
+            }
         }
 
 

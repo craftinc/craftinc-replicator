@@ -70,12 +70,19 @@ public class Messages
     public static String helpGeneral( Player player )
     {
         return ChatColor.GREEN + pluginName + " - Usage:" + NEWLINE +
-        makeCmd(player, "help", "shows this help", null) +
-        makeCmd(player, "adduser | deluser", "Add or remove a player's right to use the replicator in front of you or the replicator given by \"id\".", null, "<player>", "[id]") +
-        makeCmd(player, "addowner | delowner", "Add or remove a player's right to use AND add or remove other users and owners to the replicator in front of you or the replicator given by \"id\".", null, "<player>", "[id]") +
-        makeCmd(player, "list", "Lists all your replicators.", null) +
-        makeCmd(player, "info", "Get information about the replicator in front of you or the replicator given by \"id\".", null, "[id]") +
-        makeCmd(player, "checkversion", "Checks for a newer version.", new String[] { "craftinc.replicator.update" });
+               makeCmd(player, "help", "shows this help", null) +
+               makeCmd(player, "adduser | deluser",
+                       "Add or remove a player's right to use the replicator in front of you or the replicator given by \"id\".",
+                       null, "<player>", "[id]") +
+               makeCmd(player, "addowner | delowner",
+                       "Add or remove a player's right to use AND add or remove other users and owners to the replicator in front of you or the replicator given by \"id\".",
+                       null, "<player>", "[id]") +
+               makeCmd(player, "list", "Lists all your replicators.", null) +
+               makeCmd(player, "info",
+                       "Get information about the replicator in front of you or the replicator given by \"id\".", null,
+                       "[id]") +
+               makeCmd(player, "checkversion", "Checks for a newer version.",
+                       new String[] { "craftinc.replicator.update" });
     }
 
     public static String commandIssuedByNonPlayer
@@ -88,7 +95,7 @@ public class Messages
             ChatColor.RED + "Sorry, you don't have permission to check for new versions.";
 
     public static String noReplicatorInSight =
-            ChatColor.RED + "You are not looking at an replicator.";
+            ChatColor.RED + "You are not looking at an replicator or you do not have permission to do this.";
 
     public static String updateMessage( String newVersion, String curVersion )
     {
@@ -107,16 +114,16 @@ public class Messages
     {
         StringBuilder sb = new StringBuilder();
         sb.append(ChatColor.YELLOW + "The following replicators have been found:" + NEWLINE);
-        for (Replicator r: replicators)
+        for ( Replicator r : replicators )
         {
-            sb.append(ChatColor.GOLD + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + ":" + NEWLINE);
+            sb.append(ChatColor.GOLD + r.getName() + ":" + NEWLINE);
             sb.append(ChatColor.GREEN + "Owners:" + NEWLINE);
-            for (String owner: r.getOwners())
+            for ( String owner : r.getOwners() )
             {
                 sb.append(ChatColor.WHITE + owner + " ");
             }
             sb.append(NEWLINE + ChatColor.GREEN + "Users:" + NEWLINE);
-            for (String user: r.getUsers())
+            for ( String user : r.getUsers() )
             {
                 sb.append(ChatColor.WHITE + user + " ");
             }
@@ -125,21 +132,21 @@ public class Messages
         return sb.toString();
     }
 
-    public static String list(ArrayList<Replicator> repByOwner, ArrayList<Replicator> repByUser)
+    public static String list( ArrayList<Replicator> repByOwner, ArrayList<Replicator> repByUser )
     {
         StringBuilder sb = new StringBuilder();
 
         sb.append(ChatColor.YELLOW + "Replicators where you are owner:" + NEWLINE);
-        for (Replicator r: repByOwner)
+        for ( Replicator r : repByOwner )
         {
-            sb.append(ChatColor.WHITE + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + NEWLINE);
+            sb.append(ChatColor.WHITE + r.getName() + NEWLINE);
         }
         sb.append(NEWLINE);
 
         sb.append(ChatColor.YELLOW + "Replicators where you are user:" + NEWLINE);
-        for (Replicator r: repByUser)
+        for ( Replicator r : repByUser )
         {
-            sb.append(ChatColor.WHITE + r.id + " @ " + r.center.getX() + "," + r.center.getZ() + NEWLINE);
+            sb.append(ChatColor.WHITE + r.getName() + NEWLINE);
         }
 
         return sb.toString();
@@ -147,11 +154,27 @@ public class Messages
 
     public static String noReplicatorWithName( String replicatorName )
     {
-        return ChatColor.RED + "No replicator with name: " + replicatorName + " found or you don't have permission for that replicator.";
+        return ChatColor.RED + "No replicator with name: " + replicatorName +
+               " found or you don't have permission for that replicator.";
     }
 
     public static String addedOwner( String newOwner, Replicator replicator )
     {
-        return ChatColor.GREEN + "New owner for " + replicator.id +
+        return ChatColor.GREEN + "Added " + ChatColor.GOLD + newOwner + " as owner for " + ChatColor.GOLD +
+               replicator.getName();
     }
+
+    public static String newReplicator( Replicator replicator )
+    {
+        return ChatColor.GREEN + "Congratulations!" + ChatColor.YELLOW + " You have just built a working replicator with id: " +
+               ChatColor.GREEN + replicator.getName() + NEWLINE +
+               " Put item frames with items you want to replicate onto the front side and right click them to replicate." + NEWLINE +
+               " Use " + ChatColor.GOLD + "/repli adduser|deluser" + ChatColor.YELLOW + " while looking at it to give" +
+               " give other players permission to use your replicator." + NEWLINE +
+               " Use " + ChatColor.GOLD + "/repli help" + " to see a full list of commands you can use.";
+    }
+
+    public static String couldNotSave = ChatColor.RED + "Sorry! Could not save the replicators to disk. After a server " +
+                                        "reload or restart the information about this replicator will be lost. You will " +
+                                        "still be able to use it. Tell a mod or admin about that problem.";
 }

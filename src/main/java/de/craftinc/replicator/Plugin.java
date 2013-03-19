@@ -40,7 +40,11 @@ public class Plugin extends JavaPlugin
     {
         Plugin.instance = this;
 
+        // load replicators
+        Replicator.loadReplicators();
+
         // create listeners
+        BlockPlaceListener blockPlaceListener = new BlockPlaceListener();
 
         // commands
         Commands commandExecutor = new Commands();
@@ -48,5 +52,6 @@ public class Plugin extends JavaPlugin
 
         // register listeners
         PluginManager pm = this.getServer().getPluginManager();
+        pm.registerEvents(blockPlaceListener, this);
     }
 }

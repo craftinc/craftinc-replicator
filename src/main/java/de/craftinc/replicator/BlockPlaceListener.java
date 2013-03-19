@@ -23,14 +23,19 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.util.ArrayList;
 
-public class BlockPlaceListener implements Listener {
-
-    public void onBlockPlaced(BlockPlaceEvent event){
+@SuppressWarnings("UnusedDeclaration")
+public class BlockPlaceListener implements Listener
+{
+    public void onBlockPlaced( BlockPlaceEvent event )
+    {
         ArrayList<Location> replicators = Replicator.getReplicators(event.getBlockPlaced().getLocation());
-        if(!replicators.isEmpty()){
-            for(Location loc:replicators){
-                Replicator rep = Replicator.getOrCreate(loc,event.getPlayer().getName());
-                if(rep!=null){
+        if ( !replicators.isEmpty() )
+        {
+            for ( Location loc : replicators )
+            {
+                Replicator rep = Replicator.getOrCreate(loc, event.getPlayer().getName());
+                if ( rep != null )
+                {
                     event.getPlayer().sendMessage(Messages.newReplicator(rep));
                 }
             }
