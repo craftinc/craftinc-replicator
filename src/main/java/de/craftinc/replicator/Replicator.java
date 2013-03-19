@@ -66,7 +66,7 @@ public class Replicator implements ConfigurationSerializable
     /**
      * List of all replicators accessible by center location.
      */
-    private static HashMap<Location, Replicator> allReplicators;
+    private static HashMap<Location, Replicator> allReplicators = new HashMap<Location, Replicator>();
 
     private static File              replicatorsFile     = new File(Plugin.instance.getDataFolder(), dataFileName);
     private static FileConfiguration replicatorsFileConf = YamlConfiguration.loadConfiguration(replicatorsFile);

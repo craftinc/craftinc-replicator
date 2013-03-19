@@ -30,11 +30,13 @@ public class Messages
     private static String makeCmd( Player player, String command, String explanation, String[] permissions,
                                    String... args )
     {
-        for ( String perm : permissions )
-        {
-            if ( !player.hasPermission(perm) )
+        if (permissions != null) {
+            for ( String perm : permissions )
             {
-                return "";
+                if ( !player.hasPermission(perm) )
+                {
+                    return "";
+                }
             }
         }
 
