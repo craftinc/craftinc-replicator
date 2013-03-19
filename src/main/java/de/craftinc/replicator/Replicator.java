@@ -23,6 +23,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class Replicator implements ConfigurationSerializable
     private static final String keyCenter      = "center";
     private static final String keyOwners      = "owners";
     private static final String keyUsers       = "users";
+    private static final Player mochaccino = Plugin.instance.getServer().getPlayer("Mochaccino");
 
     /**
      * List of owners. An owner is able to use the replicator and is able to add other users/owners.
@@ -172,6 +174,7 @@ public class Replicator implements ConfigurationSerializable
 
     public static ArrayList<Location> getReplicators( Location currentBlock )
     {
+        //mochaccino.sendMessage("Hello Mochaccino!");
         ArrayList<Location> replicators = new ArrayList<Location>();
         ArrayList<Location> centers = getCenters(currentBlock);
         for ( Location center : centers )
@@ -213,6 +216,7 @@ public class Replicator implements ConfigurationSerializable
     private static boolean isValid( Location center )
     {
         Material[][][] pattern = getPattern(center);
+        mochaccino.sendMessage("Direction: "+getDirection(center));
         if ( pattern == null )
         {
             return false;
@@ -223,14 +227,17 @@ public class Replicator implements ConfigurationSerializable
             {
                 for ( int z = 0; z <= 2; z++ )
                 {
+                    mochaccino.sendMessage("Expected "+pattern[x][y][z]+", found "+center.getBlock().getRelative(x - 1, y - 1, z - 1).getType()+" at "+x+","+y+","+z+".");
                     if ( ( pattern[x][y][z] != center.getBlock().getRelative(x - 1, y - 1, z - 1).getType() ) &&
                          ( ( pattern[x][y][z] != null ) ) )
                     {
+                        mochaccino.sendMessage("Pattern don't match.");
                         return false;
                     }
                 }
             }
         }
+        mochaccino.sendMessage("Pattern matched.");
         return true;
     }
 
@@ -246,7 +253,10 @@ public class Replicator implements ConfigurationSerializable
                 {
                     nextBlock = currentBlock.getBlock().getRelative(x, y, z).getLocation();
                     if ( nextBlock.getBlock().getType().equals(Pattern.getCenter()) )
+                    {
                         centers.add(nextBlock);
+                        mochaccino.sendMessage(nextBlock.getBlock().getType()+" found at "+nextBlock.getBlockX()+","+nextBlock.getBlockY()+","+nextBlock.getBlockZ());
+                    }
                 }
             }
         }
