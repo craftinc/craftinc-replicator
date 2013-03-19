@@ -179,10 +179,10 @@ public class Replicator implements ConfigurationSerializable
         return false;
     }
 
-    public void setName( String newName )
+    public void setName( String newName, String player )
     {
         this.name = newName;
-        //TODO: Save List
+        Replicator.saveReplicators(player);
     }
 
     public String getName()
