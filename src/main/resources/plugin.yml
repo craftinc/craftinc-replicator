@@ -17,8 +17,7 @@
 name: Craft Inc. Replicator
 main: de.craftinc.replicator.Plugin
 version: ${project.version}
-softdepend: [Multiverse-Core]
-authors: [ddidderr, beuth_el_max]
+authors: [ddidderr, beuth_el_max, Mochaccino, mice_on_drugs]
 website: http://www.craftinc.de/craftinc-replicator
 
 commands:
@@ -29,4 +28,4 @@ commands:
 permissions:
   craftinc.replicator.update:
     default: op
-    description: Allows to check for updates and also get notified on login if a new version is available.
+    description: Allows to check for updates and to get notified on login if a new version is available.
