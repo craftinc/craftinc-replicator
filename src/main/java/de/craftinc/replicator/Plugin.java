@@ -45,6 +45,7 @@ public class Plugin extends JavaPlugin
 
         // create listeners
         BlockPlaceListener blockPlaceListener = new BlockPlaceListener();
+        PlayerInteractEntityListener playerInteractEntityListener = new PlayerInteractEntityListener();
 
         // commands
         Commands commandExecutor = new Commands();
@@ -53,5 +54,6 @@ public class Plugin extends JavaPlugin
         // register listeners
         PluginManager pm = this.getServer().getPluginManager();
         pm.registerEvents(blockPlaceListener, this);
+        pm.registerEvents(playerInteractEntityListener, this);
     }
 }

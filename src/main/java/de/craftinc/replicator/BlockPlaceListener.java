@@ -14,10 +14,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 package de.craftinc.replicator;
 
 import org.bukkit.Location;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 @SuppressWarnings("UnusedDeclaration")
 public class BlockPlaceListener implements Listener
 {
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlaced( BlockPlaceEvent event )
     {
         ArrayList<Location> replicators = Replicator.getReplicators(event.getBlockPlaced().getLocation());

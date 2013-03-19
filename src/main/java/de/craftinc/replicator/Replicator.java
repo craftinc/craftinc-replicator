@@ -184,15 +184,28 @@ public class Replicator implements ConfigurationSerializable
         return replicators;
     }
 
-    private static Material[][][] getPattern( Location center )
+    public static BlockFace getDirection( Location center )
     {
         if ( center.getBlock().getRelative(BlockFace.NORTH).getType().equals(Material.AIR) )
-            return Pattern.getNorth();
+            return BlockFace.NORTH;
         if ( center.getBlock().getRelative(BlockFace.SOUTH).getType().equals(Material.AIR) )
-            return Pattern.getSouth();
+            return BlockFace.SOUTH;
         if ( center.getBlock().getRelative(BlockFace.WEST).getType().equals(Material.AIR) )
-            return Pattern.getWest();
+            return BlockFace.WEST;
         if ( center.getBlock().getRelative(BlockFace.EAST).getType().equals(Material.AIR) )
+            return BlockFace.EAST;
+        return null;
+    }
+
+    private static Material[][][] getPattern( Location center )
+    {
+        if ( getDirection(center).equals(BlockFace.NORTH) )
+            return Pattern.getNorth();
+        if ( getDirection(center).equals(BlockFace.SOUTH) )
+            return Pattern.getSouth();
+        if ( getDirection(center).equals(BlockFace.WEST) )
+            return Pattern.getWest();
+        if ( getDirection(center).equals(BlockFace.EAST) )
             return Pattern.getEast();
         return null;
     }
