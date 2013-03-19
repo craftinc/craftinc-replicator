@@ -36,10 +36,6 @@ public class BlockPlaceListener implements Listener
             for ( Location loc : replicators )
             {
                 Replicator rep = Replicator.getOrCreate(loc, event.getPlayer());
-                if ( rep != null )
-                {
-
-                }
             }
         }
     }

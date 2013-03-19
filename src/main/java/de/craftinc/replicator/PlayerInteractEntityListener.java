@@ -16,7 +16,6 @@
 */
 package de.craftinc.replicator;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -60,14 +59,16 @@ public class PlayerInteractEntityListener implements Listener
         }
 
         // do nothing if item frame is empty
-        if (itemFrame.getItem().getType().equals(Material.AIR))
+        if ( itemFrame.getItem().getType().equals(Material.AIR) )
         {
             return;
         }
 
         // find replicator centers which are suitable for this item frame
         //Replicator.mochaccino.sendMessage(itemFrame.getAttachedFace() + "");
-        ArrayList<Replicator> replicators = Replicator.getUsableReplicators(event.getRightClicked().getLocation().getBlock().getRelative(itemFrame.getAttachedFace()).getLocation(),event.getPlayer().getName());
+        ArrayList<Replicator> replicators = Replicator.getUsableReplicators(
+                event.getRightClicked().getLocation().getBlock().getRelative(itemFrame.getAttachedFace()).getLocation(),
+                event.getPlayer().getName());
 
         // do nothing if no replicator centers have been found
         if ( replicators.isEmpty() )
@@ -88,8 +89,8 @@ public class PlayerInteractEntityListener implements Listener
             ItemStack stack = itemFrame.getItem();
             stack.setAmount(64);
             event.getPlayer().getWorld().dropItemNaturally(
-                    replicator.getCenter().getBlock().getRelative(Replicator.getDirection(replicator.getCenter())).getLocation(),
-                    stack);
+                    replicator.getCenter().getBlock().getRelative(Replicator.getDirection(replicator.getCenter()))
+                              .getLocation(), stack);
         }
     }
 }

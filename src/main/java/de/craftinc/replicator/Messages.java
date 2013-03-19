@@ -1,5 +1,5 @@
 /*  Craft Inc. Replicator
-    Copyright (C) 2013  Paul Schulze, Maximilian Häckel
+    Copyright (C) 2013  Paul Schulze, Maximilian Häckel, Moritz Kaltofen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,8 @@ public class Messages
     private static String makeCmd( Player player, String command, String explanation, String[] permissions,
                                    String... args )
     {
-        if (permissions != null) {
+        if ( permissions != null )
+        {
             for ( String perm : permissions )
             {
                 if ( !player.hasPermission(perm) )
@@ -90,9 +91,6 @@ public class Messages
     public static String commandIssuedByNonPlayer
             = ChatColor.RED + "Only a player can use " + pluginName + " commands!";
 
-    public static String noPermissionUse =
-            ChatColor.RED + "Sorry, you don't have permission to use this replicator. Ask .... TODO"; //TODO
-
     public static String noPermissionCheckversion =
             ChatColor.RED + "Sorry, you don't have permission to check for new versions.";
 
@@ -116,20 +114,20 @@ public class Messages
     {
         StringBuilder sb = new StringBuilder();
         sb.append(ChatColor.YELLOW + "The following replicators have been found:" + NEWLINE);
-        if(replicators.size()>0)
+        if ( replicators.size() > 0 )
         {
             for ( Replicator r : replicators )
             {
-                sb.append(ChatColor.GOLD + r.getName() + ":" + NEWLINE);
+                sb.append(ChatColor.GOLD).append(r.getName()).append(":").append(NEWLINE);
                 sb.append(ChatColor.GREEN + "Owners:" + NEWLINE);
                 for ( String owner : r.getOwners() )
                 {
-                    sb.append(ChatColor.WHITE + owner + " ");
+                    sb.append(ChatColor.WHITE).append(owner).append(" ");
                 }
                 sb.append(NEWLINE + ChatColor.GREEN + "Users:" + NEWLINE);
                 for ( String user : r.getUsers() )
                 {
-                    sb.append(ChatColor.WHITE + user + " ");
+                    sb.append(ChatColor.WHITE).append(user).append(" ");
                 }
                 sb.append(NEWLINE);
             }
@@ -144,14 +142,14 @@ public class Messages
         sb.append(ChatColor.YELLOW + "Replicators where you are owner:" + NEWLINE);
         for ( Replicator r : repByOwner )
         {
-            sb.append(ChatColor.WHITE + r.getName() + NEWLINE);
+            sb.append(ChatColor.WHITE).append(r.getName()).append(NEWLINE);
         }
         sb.append(NEWLINE);
 
         sb.append(ChatColor.YELLOW + "Replicators where you are user:" + NEWLINE);
         for ( Replicator r : repByUser )
         {
-            sb.append(ChatColor.WHITE + r.getName() + NEWLINE);
+            sb.append(ChatColor.WHITE).append(r.getName()).append(NEWLINE);
         }
 
         return sb.toString();
@@ -165,21 +163,55 @@ public class Messages
 
     public static String addedOwner( String newOwner, Replicator replicator )
     {
-        return ChatColor.GREEN + "Added " + ChatColor.GOLD + newOwner + " as owner for " + ChatColor.GOLD +
-               replicator.getName();
+        return ChatColor.GREEN + "Added " + ChatColor.GOLD + newOwner + ChatColor.GREEN + " as owner for "
+               + ChatColor.GOLD + replicator.getName() + ChatColor.GREEN + ".";
+    }
+
+    public static String deletedOwner( String deletedOwner, Replicator replicator )
+    {
+        return ChatColor.GREEN + "Deleted owner status of " + ChatColor.GOLD + deletedOwner + ChatColor.GREEN +
+               " for replicator "
+               + ChatColor.GOLD + replicator.getName() + ChatColor.GREEN + ".";
+    }
+
+    public static String addedUser( String newUser, Replicator replicator )
+    {
+        return ChatColor.GREEN + "Added " + ChatColor.GOLD + newUser + ChatColor.GREEN + " as user for "
+               + ChatColor.GOLD + replicator.getName() + ChatColor.GREEN + ".";
+    }
+
+    public static String deletedUser( String deletedUser, Replicator replicator )
+    {
+        return ChatColor.GREEN + "Deleted user status of " + ChatColor.GOLD + deletedUser + ChatColor.GREEN +
+               " for replicator "
+               + ChatColor.GOLD + replicator.getName() + ChatColor.GREEN + ".";
     }
 
     public static String newReplicator( Replicator replicator )
     {
-        return ChatColor.GREEN + "Congratulations!" + ChatColor.YELLOW + " You have just built a working replicator with id: " +
+        return ChatColor.GREEN + "Congratulations!" + ChatColor.YELLOW +
+               " You have just built a working replicator with id: " +
                ChatColor.GREEN + replicator.getName() + NEWLINE +
-               " Put item frames with items you want to replicate onto the front side and right click them to replicate." + NEWLINE +
+               " Put item frames with items you want to replicate onto the front side and right click them to replicate." +
+               NEWLINE +
                " Use " + ChatColor.GOLD + "/repli adduser|deluser" + ChatColor.YELLOW + " while looking at it to give" +
                " give other players permission to use your replicator." + NEWLINE +
-               " Use " + ChatColor.GOLD + "/repli help" + " to see a full list of commands you can use.";
+               " Use " + ChatColor.GOLD + "/repli help" + ChatColor.YELLOW +
+               " to see a full list of commands you can use.";
     }
 
-    public static String couldNotSave = ChatColor.RED + "Sorry! Could not save the replicators to disk. After a server " +
-                                        "reload or restart the information about this replicator will be lost. You will " +
-                                        "still be able to use it. Tell a mod or admin about that problem.";
+    public static String couldNotSave =
+            ChatColor.RED + "Sorry! Could not save the replicators to disk. After a server " +
+            "reload or restart the information about this replicator will be lost. You will " +
+            "still be able to use it. Tell a mod or admin about that problem.";
+
+    public static String noPlayerWithName( String changedPlayer, String ownerUser )
+    {
+        return ChatColor.RED + "There is no " + ownerUser + " named " + ChatColor.GOLD + changedPlayer + ChatColor.RED + ".";
+    }
+
+    public static String playerAlreadyIs( String changedPlayer, String ownerUser )
+    {
+        return ChatColor.RED + "Player " + ChatColor.GOLD + changedPlayer + ChatColor.RED + " is already " + ownerUser + ".";
+    }
 }

@@ -19,6 +19,7 @@ package de.craftinc.replicator;
 import java.util.Arrays;
 import java.util.HashSet;
 
+// FIXME: unused at the moment because the HashSet<Byte> seems not to be working as it is expected here...
 public class BlockUtil
 {
     /**

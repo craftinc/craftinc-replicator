@@ -1,5 +1,5 @@
 /*  Craft Inc. Replicator
-    Copyright (C) 2013  Paul Schulze, Maximilian Häckel
+    Copyright (C) 2013  Paul Schulze, Maximilian Häckel, Moritz Kaltofen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 */
 package de.craftinc.replicator;
 
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -39,7 +38,7 @@ public class Commands implements CommandExecutor
         }
 
         // commands
-        if ( command.getName().equalsIgnoreCase("replicate") || command.getAliases().get(0).equalsIgnoreCase("repli") )
+        if ( command.getName().equalsIgnoreCase("replicator") || command.getAliases().get(0).equalsIgnoreCase("repli") )
         {
             Player player = ( (Player) sender ).getPlayer();
 
@@ -80,9 +79,10 @@ public class Commands implements CommandExecutor
                 {
                     // get block where the player is looking at
                     Block potentialReplicatorBlock = player.getTargetBlock(null, 100);
-                    Replicator.mochaccino.sendMessage("You are looking at "+potentialReplicatorBlock.getLocation().getBlockX()+","+potentialReplicatorBlock.getLocation().getBlockY()+","+potentialReplicatorBlock.getLocation().getBlockZ());
+//                    Replicator.mochaccino.sendMessage("You are looking at "+potentialReplicatorBlock.getLocation().getBlockX()+","+potentialReplicatorBlock.getLocation().getBlockY()+","+potentialReplicatorBlock.getLocation().getBlockZ());
                     // get zero or more valid replicator centers
-                    ArrayList<Replicator> replicators = Replicator.getReplicators(potentialReplicatorBlock.getLocation());
+                    ArrayList<Replicator> replicators = Replicator
+                            .getReplicators(potentialReplicatorBlock.getLocation());
 
                     if ( replicators.size() == 0 )
                     {
@@ -95,7 +95,7 @@ public class Commands implements CommandExecutor
                 // replicator specified as argument
                 else if ( args.length == 2 )
                 {
-                    Replicator rep = Replicator.getByName(args[1], player.getName());
+                    Replicator rep = Replicator.getByName(args[1]);
                     if ( rep == null )
                     {
                         sender.sendMessage(Messages.noReplicatorWithName(args[1]));
@@ -128,7 +128,7 @@ public class Commands implements CommandExecutor
 
                     // get zero or more valid replicator centers
                     ArrayList<Replicator> replicators = Replicator
-                            .getOwnReplicators(potentialReplicatorBlock.getLocation(),player.getName());
+                            .getOwnReplicators(potentialReplicatorBlock.getLocation(), player.getName());
 
                     // no replicator in sight
                     if ( replicators.isEmpty() )
@@ -138,30 +138,14 @@ public class Commands implements CommandExecutor
                     }
                     for ( Replicator replicator : replicators )
                     {
-                        if ( args[0].equalsIgnoreCase("addowner") )
-                        {
-                            replicator.addOwner(args[1],player.getName());
-                        }
-                        else if ( args[0].equalsIgnoreCase("delowner") )
-                        {
-                            replicator.rmOwner(args[1],player.getName());
-                        }
-                        else if ( args[0].equalsIgnoreCase("adduser") )
-                        {
-                            replicator.addUser(args[1],player.getName());
-                        }
-                        else if ( args[0].equalsIgnoreCase("deluser") )
-                        {
-                            replicator.rmUser(args[1],player.getName());
-                        }
-                        sender.sendMessage(Messages.addedOwner(args[1], replicator));
+                        addOrDelOwnerOrUser(player.getName(), args[1], args[0], replicator);
                     }
                     return true;
                 }
                 // replicator name specified as argument
                 else if ( args.length == 3 )
                 {
-                    Replicator replicator = Replicator.getByName(args[2], player.getName());
+                    Replicator replicator = Replicator.getOwnByName(args[2], player.getName());
 
                     if ( replicator == null )
                     {
@@ -169,24 +153,7 @@ public class Commands implements CommandExecutor
                         return true;
                     }
 
-                    if ( args[0].equalsIgnoreCase("addowner") )
-                    {
-                        replicator.addOwner(args[1],player.getName());
-                    }
-                    else if ( args[0].equalsIgnoreCase("delowner") )
-                    {
-                        replicator.rmOwner(args[1],player.getName());
-                    }
-                    else if ( args[0].equalsIgnoreCase("adduser") )
-                    {
-                        replicator.addUser(args[1],player.getName());
-                    }
-                    else if ( args[0].equalsIgnoreCase("deluser") )
-                    {
-                        replicator.rmUser(args[1],player.getName());
-                    }
-
-                    sender.sendMessage(Messages.addedOwner(player.getName(), replicator));
+                    addOrDelOwnerOrUser(player.getName(), args[1], args[0], replicator);
                     return true;
                 }
             }
@@ -196,5 +163,58 @@ public class Commands implements CommandExecutor
         // if some unknown argument has been given, show help message
         sender.sendMessage(Messages.helpGeneral(( (Player) sender ).getPlayer()));
         return true;
+    }
+
+    private static void addOrDelOwnerOrUser( String playerName, String changedPlayer, String command,
+                                             Replicator replicator )
+    {
+        if ( command.equalsIgnoreCase("addowner") )
+        {
+            if ( replicator.addOwner(changedPlayer, playerName) )
+            {
+                Plugin.instance.getServer().getPlayer(playerName)
+                      .sendMessage(Messages.addedOwner(changedPlayer, replicator));
+            }
+            else
+            {
+                Plugin.instance.getServer().getPlayer(playerName).sendMessage(Messages.playerAlreadyIs(changedPlayer, "owner"));
+            }
+        }
+        else if ( command.equalsIgnoreCase("delowner") )
+        {
+            if ( replicator.rmOwner(changedPlayer, playerName) )
+            {
+                Plugin.instance.getServer().getPlayer(playerName)
+                      .sendMessage(Messages.deletedOwner(changedPlayer, replicator));
+            }
+            else
+            {
+                Plugin.instance.getServer().getPlayer(playerName).sendMessage(Messages.noPlayerWithName(changedPlayer, "owner"));
+            }
+        }
+        else if ( command.equalsIgnoreCase("adduser") )
+        {
+            if ( replicator.addUser(changedPlayer, playerName) )
+            {
+                Plugin.instance.getServer().getPlayer(playerName)
+                      .sendMessage(Messages.addedUser(changedPlayer, replicator));
+            }
+            else
+            {
+                Plugin.instance.getServer().getPlayer(playerName).sendMessage(Messages.playerAlreadyIs(changedPlayer, "user"));
+            }
+        }
+        else if ( command.equalsIgnoreCase("deluser") )
+        {
+            if ( replicator.rmUser(changedPlayer, playerName) )
+            {
+                Plugin.instance.getServer().getPlayer(playerName)
+                      .sendMessage(Messages.deletedUser(changedPlayer, replicator));
+            }
+            else
+            {
+                Plugin.instance.getServer().getPlayer(playerName).sendMessage(Messages.noPlayerWithName(changedPlayer, "user"));
+            }
+        }
     }
 }

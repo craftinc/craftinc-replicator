@@ -86,7 +86,8 @@ public class Replicator implements ConfigurationSerializable
         this.users = new HashSet<String>();
         this.owners.add(firstOwner);
         this.center = center;
-        name = center.getWorld().getName() + "," + center.getBlockX() + "," + center.getBlockY() + "," + center.getBlockZ();
+        name = center.getWorld().getName() + "," + center.getBlockX() + "," + center.getBlockY() + "," +
+               center.getBlockZ();
     }
 
     @SuppressWarnings("unchecked unused")
@@ -117,45 +118,51 @@ public class Replicator implements ConfigurationSerializable
         return users;
     }
 
-    public void addUser( String user, String player )
+    public Boolean addUser( String user, String player )
     {
-        this.users.add(user);
-        Replicator.saveReplicators(player);
-    }
-
-    public void addOwner( String owner, String player )
-    {
-        this.owners.add(owner);
-        Replicator.saveReplicators(player);
-    }
-
-    public boolean rmUser( String user, String player )
-    {
-        if ( this.users.remove(user) )
+        if ( users.add(user) )
         {
             Replicator.saveReplicators(player);
             return true;
         }
-        else
-            return false;
+        return false;
     }
 
-    public boolean rmOwner( String owner, String player )
+    public Boolean addOwner( String owner, String player )
     {
-        if ( this.owners.remove(owner) )
+        if ( owners.add(owner) )
         {
-            if(owners.isEmpty())
+            Replicator.saveReplicators(player);
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean rmUser( String user, String player )
+    {
+        if ( users.remove(user) )
+        {
+            Replicator.saveReplicators(player);
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean rmOwner( String owner, String player )
+    {
+        if ( owners.remove(owner) )
+        {
+            if ( owners.isEmpty() )
             {
-                allReplicators.remove(this.center);
+                allReplicators.remove(center);
             }
             Replicator.saveReplicators(player);
             return true;
         }
-        else
-            return false;
+        return false;
     }
 
-    public boolean isOwner( String player )
+    public boolean hasOwner( String player )
     {
         for ( String owner : owners )
         {
@@ -167,7 +174,7 @@ public class Replicator implements ConfigurationSerializable
         return false;
     }
 
-    public boolean isUser( String player )
+    public boolean hasUser( String player )
     {
         for ( String user : users )
         {
@@ -179,6 +186,7 @@ public class Replicator implements ConfigurationSerializable
         return false;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setName( String newName, String player )
     {
         this.name = newName;
@@ -190,16 +198,12 @@ public class Replicator implements ConfigurationSerializable
         return name;
     }
 
-    public boolean isUsable(String player)
+    public boolean isUsable( String player )
     {
-        if ( this.isOwner(player) || this.isUser(player) )
-        {
-            return true;
-        }
-        return false;
+        return this.hasOwner(player) || this.hasUser(player);
     }
 
-    public static ArrayList<Location> getReplicatorLocations(Location currentBlock)
+    public static ArrayList<Location> getReplicatorLocations( Location currentBlock )
     {
         //mochaccino.sendMessage("Hello Mochaccino!");
         ArrayList<Location> replicators = new ArrayList<Location>();
@@ -229,13 +233,17 @@ public class Replicator implements ConfigurationSerializable
 
     private static Material[][][] getPattern( Location center )
     {
-        if ( getDirection(center).equals(BlockFace.NORTH) )
+        BlockFace direction = getDirection(center);
+        if ( direction == null )
+            return null;
+
+        if ( direction.equals(BlockFace.NORTH) )
             return Pattern.getNorth();
-        if ( getDirection(center).equals(BlockFace.SOUTH) )
+        if ( direction.equals(BlockFace.SOUTH) )
             return Pattern.getSouth();
-        if ( getDirection(center).equals(BlockFace.WEST) )
+        if ( direction.equals(BlockFace.WEST) )
             return Pattern.getWest();
-        if ( getDirection(center).equals(BlockFace.EAST) )
+        if ( direction.equals(BlockFace.EAST) )
             return Pattern.getEast();
         return null;
     }
@@ -294,8 +302,8 @@ public class Replicator implements ConfigurationSerializable
      * Gets a replicator with the given location. If no replicator exists a new one is created.
      * Returns null if player is not owner or user of the replicator.
      *
-     * @param loc        center of the replicator
-     * @param player    the player entity
+     * @param loc    center of the replicator
+     * @param player the player entity
      * @return Replicator
      */
     public static Replicator getOrCreate( Location loc, Player player )
@@ -305,7 +313,7 @@ public class Replicator implements ConfigurationSerializable
         // replicator already exists
         if ( rep != null )
         {
-            if ( rep.isOwner(player.getName()) || rep.isUser(player.getName()) )
+            if ( rep.hasOwner(player.getName()) || rep.hasUser(player.getName()) )
             {
                 return rep;
             }
@@ -327,65 +335,101 @@ public class Replicator implements ConfigurationSerializable
 
     /**
      * Returns all Replicators, which includes the Block at Location loc.
-     * @param loc   Location of the current Block
+     *
+     * @param loc Location of the current Block
      * @return ArrayList of Replicators
      */
-    public static ArrayList<Replicator> getReplicators(Location loc)
+    public static ArrayList<Replicator> getReplicators( Location loc )
     {
         ArrayList<Location> locs = getReplicatorLocations(loc);
         ArrayList<Replicator> reps = new ArrayList<Replicator>();
-        for(Location center:locs)
+        for ( Location center : locs )
         {
-            if(allReplicators.get(center)!=null)
+            if ( allReplicators.get(center) != null )
                 reps.add(allReplicators.get(center));
         }
         return reps;
     }
 
-    public static ArrayList<Replicator> getUsableReplicators(Location loc, String player)
+    public static ArrayList<Replicator> getUsableReplicators( Location loc, String player )
     {
         ArrayList<Location> locs = getReplicatorLocations(loc);
         ArrayList<Replicator> reps = new ArrayList<Replicator>();
-        for(Location center:locs)
+        for ( Location center : locs )
         {
             Replicator rep = allReplicators.get(center);
-            if(rep!=null&&rep.isUsable(player))
+            if ( rep != null && rep.isUsable(player) )
                 reps.add(rep);
         }
         return reps;
     }
 
-    public static ArrayList<Replicator> getOwnReplicators(Location loc, String player)
+    public static ArrayList<Replicator> getOwnReplicators( Location loc, String player )
     {
         ArrayList<Location> locs = getReplicatorLocations(loc);
         ArrayList<Replicator> reps = new ArrayList<Replicator>();
-        for(Location center:locs)
+        for ( Location center : locs )
         {
             Replicator rep = allReplicators.get(center);
-            if(rep!=null&&rep.isOwner(player))
+            if ( rep != null && rep.hasOwner(player) )
                 reps.add(rep);
         }
         return reps;
     }
+
+
     /**
-     * Get a replicator with the specified name. Returns null if player
-     * is not owner or user or if replicator does not exist.
+     * Get a replicator with the specified name without any permission checks.
+     * Returns null if replicator with that name does not exist.
      *
-     * @param repName    name of the replicator
-     * @param playerName name of the player
+     * @param repName name of the replicator
      * @return Replicator
      */
-    public static Replicator getByName( String repName, String playerName )
+    public static Replicator getByName( String repName )
     {
         for ( Replicator rep : allReplicators.values() )
         {
             if ( rep.getName().equals(repName) )
             {
-                if(rep.isUsable(playerName))
-                {
-                    return rep;
-                }
+                return rep;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Get a replicator with the specified name where the given player is owner
+     * else returns null.
+     *
+     * @param repName    name of the replicator
+     * @param playerName name of the player who has to be owner
+     * @return Replicator
+     */
+    public static Replicator getOwnByName( String repName, String playerName )
+    {
+        Replicator rep = getByName(repName);
+        if ( rep.hasOwner(playerName) )
+        {
+            return rep;
+        }
+        return null;
+    }
+
+    /**
+     * Get a replicator with the specified name where the given player is at least user
+     * else returns null.
+     *
+     * @param repName    name of the replicator
+     * @param playerName name of the player who has to be at least user
+     * @return Replicator
+     */
+    @SuppressWarnings("UnusedDeclaration")
+    public static Replicator getUsableByName( String repName, String playerName )
+    {
+        Replicator rep = getByName(repName);
+        if ( rep.isUsable(playerName) )
+        {
+            return rep;
         }
         return null;
     }
@@ -395,7 +439,7 @@ public class Replicator implements ConfigurationSerializable
         ArrayList<Replicator> reps = new ArrayList<Replicator>();
         for ( Replicator rep : allReplicators.values() )
         {
-            if ( rep.isOwner(playerName) )
+            if ( rep.hasOwner(playerName) )
             {
                 reps.add(rep);
             }
@@ -408,7 +452,7 @@ public class Replicator implements ConfigurationSerializable
         ArrayList<Replicator> reps = new ArrayList<Replicator>();
         for ( Replicator rep : allReplicators.values() )
         {
-            if ( rep.isUser(playerName) )
+            if ( rep.hasUser(playerName) )
             {
                 //mochaccino.sendMessage("You are User for "+rep.getName());
                 reps.add(rep);
@@ -435,9 +479,10 @@ public class Replicator implements ConfigurationSerializable
         replicatorsFileConf.getList(keyReplicators);
     }
 
-    public static void saveReplicators(String playerName)
+    public static void saveReplicators( String playerName )
     {
-        try {
+        try
+        {
             replicatorsFileConf.set(keyReplicators, new ArrayList<Object>(allReplicators.values()));
             replicatorsFileConf.save(replicatorsFile);
         }
