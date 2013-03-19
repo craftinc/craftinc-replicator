@@ -79,22 +79,15 @@ public class Commands implements CommandExecutor
                 if ( args.length == 1 )
                 {
                     // get block where the player is looking at
-                    Block potentialReplicatorBlock = player.getTargetBlock(BlockUtil.transparentBlocks, 100);
-
+                    Block potentialReplicatorBlock = player.getTargetBlock(null, 100);
+                    Replicator.mochaccino.sendMessage("You are looking at "+potentialReplicatorBlock.getLocation().getBlockX()+","+potentialReplicatorBlock.getLocation().getBlockY()+","+potentialReplicatorBlock.getLocation().getBlockZ());
                     // get zero or more valid replicator centers
-                    ArrayList<Location> replicatorCenters = Replicator
-                            .getReplicators(potentialReplicatorBlock.getLocation());
+                    ArrayList<Replicator> replicators = Replicator.getReplicators(potentialReplicatorBlock.getLocation());
 
-                    if ( replicatorCenters.size() == 0 )
+                    if ( replicators.size() == 0 )
                     {
                         sender.sendMessage(Messages.noReplicatorInSight);
                         return true;
-                    }
-
-                    ArrayList<Replicator> replicators = new ArrayList<Replicator>();
-                    for ( Location replicatorCenter : replicatorCenters )
-                    {
-                        replicators.add(Replicator.getOrCreate(replicatorCenter, player.getName()));
                     }
                     sender.sendMessage(Messages.info(replicators));
                     return true;
@@ -131,44 +124,36 @@ public class Commands implements CommandExecutor
                 if ( args.length == 2 )
                 {
                     // get block where the player is looking at
-                    Block potentialReplicatorBlock = player.getTargetBlock(BlockUtil.transparentBlocks, 100);
+                    Block potentialReplicatorBlock = player.getTargetBlock(null, 100);
 
                     // get zero or more valid replicator centers
-                    ArrayList<Location> replicatorCenters = Replicator
-                            .getReplicators(potentialReplicatorBlock.getLocation());
+                    ArrayList<Replicator> replicators = Replicator
+                            .getOwnReplicators(potentialReplicatorBlock.getLocation(),player.getName());
 
                     // no replicator in sight
-                    if ( replicatorCenters.size() == 0 )
+                    if ( replicators.isEmpty() )
                     {
                         sender.sendMessage(Messages.noReplicatorInSight);
                         return true;
                     }
-
-                    for ( Location replicatorCenter : replicatorCenters )
+                    for ( Replicator replicator : replicators )
                     {
-                        Replicator replicator = Replicator.getOrCreate(replicatorCenter, player.getName());
-                        if ( replicator == null )
-                        {
-                            sender.sendMessage(Messages.noReplicatorInSight);
-                            continue;
-                        }
                         if ( args[0].equalsIgnoreCase("addowner") )
                         {
-                            replicator.addOwner(args[1]);
+                            replicator.addOwner(args[1],player.getName());
                         }
                         else if ( args[0].equalsIgnoreCase("delowner") )
                         {
-                            replicator.rmOwner(args[1]);
+                            replicator.rmOwner(args[1],player.getName());
                         }
                         else if ( args[0].equalsIgnoreCase("adduser") )
                         {
-                            replicator.addUser(args[1]);
+                            replicator.addUser(args[1],player.getName());
                         }
                         else if ( args[0].equalsIgnoreCase("deluser") )
                         {
-                            replicator.rmUser(args[1]);
+                            replicator.rmUser(args[1],player.getName());
                         }
-
                         sender.sendMessage(Messages.addedOwner(args[1], replicator));
                     }
                     return true;
@@ -186,19 +171,19 @@ public class Commands implements CommandExecutor
 
                     if ( args[0].equalsIgnoreCase("addowner") )
                     {
-                        replicator.addOwner(args[1]);
+                        replicator.addOwner(args[1],player.getName());
                     }
                     else if ( args[0].equalsIgnoreCase("delowner") )
                     {
-                        replicator.rmOwner(args[1]);
+                        replicator.rmOwner(args[1],player.getName());
                     }
                     else if ( args[0].equalsIgnoreCase("adduser") )
                     {
-                        replicator.addUser(args[1]);
+                        replicator.addUser(args[1],player.getName());
                     }
                     else if ( args[0].equalsIgnoreCase("deluser") )
                     {
-                        replicator.rmUser(args[1]);
+                        replicator.rmUser(args[1],player.getName());
                     }
 
                     sender.sendMessage(Messages.addedOwner(player.getName(), replicator));

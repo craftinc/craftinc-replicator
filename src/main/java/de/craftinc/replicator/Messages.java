@@ -116,20 +116,23 @@ public class Messages
     {
         StringBuilder sb = new StringBuilder();
         sb.append(ChatColor.YELLOW + "The following replicators have been found:" + NEWLINE);
-        for ( Replicator r : replicators )
+        if(replicators.size()>0)
         {
-            sb.append(ChatColor.GOLD + r.getName() + ":" + NEWLINE);
-            sb.append(ChatColor.GREEN + "Owners:" + NEWLINE);
-            for ( String owner : r.getOwners() )
+            for ( Replicator r : replicators )
             {
-                sb.append(ChatColor.WHITE + owner + " ");
+                sb.append(ChatColor.GOLD + r.getName() + ":" + NEWLINE);
+                sb.append(ChatColor.GREEN + "Owners:" + NEWLINE);
+                for ( String owner : r.getOwners() )
+                {
+                    sb.append(ChatColor.WHITE + owner + " ");
+                }
+                sb.append(NEWLINE + ChatColor.GREEN + "Users:" + NEWLINE);
+                for ( String user : r.getUsers() )
+                {
+                    sb.append(ChatColor.WHITE + user + " ");
+                }
+                sb.append(NEWLINE);
             }
-            sb.append(NEWLINE + ChatColor.GREEN + "Users:" + NEWLINE);
-            for ( String user : r.getUsers() )
-            {
-                sb.append(ChatColor.WHITE + user + " ");
-            }
-            sb.append(NEWLINE);
         }
         return sb.toString();
     }

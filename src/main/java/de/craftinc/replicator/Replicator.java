@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class Replicator implements ConfigurationSerializable
@@ -43,22 +44,27 @@ public class Replicator implements ConfigurationSerializable
     private static final String keyCenter      = "center";
     private static final String keyOwners      = "owners";
     private static final String keyUsers       = "users";
-    private static final Player mochaccino = Plugin.instance.getServer().getPlayer("Mochaccino");
+    //public static final Player mochaccino = Plugin.instance.getServer().getPlayer("Mochaccino");
 
     /**
      * List of owners. An owner is able to use the replicator and is able to add other users/owners.
      */
-    private ArrayList<String> owners;
+    private HashSet<String> owners;
 
     /**
      * List of users. A user is able to use the replicator.
      */
-    private ArrayList<String> users;
+    private HashSet<String> users;
 
     /**
      * Name of the replicator. It will always be in the format "world,x,y,z".
      */
     private String name;
+
+    public Location getCenter()
+    {
+        return center;
+    }
 
     /**
      * Center location of the replicator.
@@ -76,11 +82,11 @@ public class Replicator implements ConfigurationSerializable
 
     public Replicator( String firstOwner, Location center )
     {
-        this.owners = new ArrayList<String>();
-        this.users = new ArrayList<String>();
+        this.owners = new HashSet<String>();
+        this.users = new HashSet<String>();
         this.owners.add(firstOwner);
         this.center = center;
-        name = center.getWorld() + "," + center.getBlockX() + "," + center.getBlockY() + "," + center.getBlockZ();
+        name = center.getWorld().getName() + "," + center.getBlockX() + "," + center.getBlockY() + "," + center.getBlockZ();
     }
 
     @SuppressWarnings("unchecked unused")
@@ -90,8 +96,8 @@ public class Replicator implements ConfigurationSerializable
         {
             name = (String) map.get(keyName);
             center = LocationSerializer.deserializeLocation((Map<String, Object>) map.get(keyCenter));
-            owners = (ArrayList<String>) map.get(keyOwners);
-            users = (ArrayList<String>) map.get(keyUsers);
+            owners = (HashSet<String>) map.get(keyOwners);
+            users = (HashSet<String>) map.get(keyUsers);
 
             allReplicators.put(center, this);
         }
@@ -101,38 +107,50 @@ public class Replicator implements ConfigurationSerializable
         }
     }
 
-    public ArrayList<String> getOwners()
+    public HashSet<String> getOwners()
     {
         return owners;
     }
 
-    public ArrayList<String> getUsers()
+    public HashSet<String> getUsers()
     {
         return users;
     }
 
-    public void addUser( String user )
+    public void addUser( String user, String player )
     {
         this.users.add(user);
+        Replicator.saveReplicators(player);
     }
 
-    public void addOwner( String owner )
+    public void addOwner( String owner, String player )
     {
-        this.users.add(owner);
+        this.owners.add(owner);
+        Replicator.saveReplicators(player);
     }
 
-    public boolean rmUser( String user )
+    public boolean rmUser( String user, String player )
     {
         if ( this.users.remove(user) )
+        {
+            Replicator.saveReplicators(player);
             return true;
+        }
         else
             return false;
     }
 
-    public boolean rmOwner( String owner )
+    public boolean rmOwner( String owner, String player )
     {
         if ( this.owners.remove(owner) )
+        {
+            if(owners.isEmpty())
+            {
+                allReplicators.remove(this.center);
+            }
+            Replicator.saveReplicators(player);
             return true;
+        }
         else
             return false;
     }
@@ -141,7 +159,7 @@ public class Replicator implements ConfigurationSerializable
     {
         for ( String owner : owners )
         {
-            if ( owner.equals(player) )
+            if ( owner.equalsIgnoreCase(player) )
             {
                 return true;
             }
@@ -153,7 +171,7 @@ public class Replicator implements ConfigurationSerializable
     {
         for ( String user : users )
         {
-            if ( user.equals(player) )
+            if ( user.equalsIgnoreCase(player) )
             {
                 return true;
             }
@@ -172,7 +190,16 @@ public class Replicator implements ConfigurationSerializable
         return name;
     }
 
-    public static ArrayList<Location> getReplicators( Location currentBlock )
+    public boolean isUsable(String player)
+    {
+        if ( this.isOwner(player) || this.isUser(player) )
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static ArrayList<Location> getReplicatorLocations(Location currentBlock)
     {
         //mochaccino.sendMessage("Hello Mochaccino!");
         ArrayList<Location> replicators = new ArrayList<Location>();
@@ -216,7 +243,7 @@ public class Replicator implements ConfigurationSerializable
     private static boolean isValid( Location center )
     {
         Material[][][] pattern = getPattern(center);
-        mochaccino.sendMessage("Direction: "+getDirection(center));
+        //mochaccino.sendMessage("Direction: "+getDirection(center));
         if ( pattern == null )
         {
             return false;
@@ -227,17 +254,17 @@ public class Replicator implements ConfigurationSerializable
             {
                 for ( int z = 0; z <= 2; z++ )
                 {
-                    mochaccino.sendMessage("Expected "+pattern[x][y][z]+", found "+center.getBlock().getRelative(x - 1, y - 1, z - 1).getType()+" at "+x+","+y+","+z+".");
+                    //mochaccino.sendMessage("Expected "+pattern[x][y][z]+", found "+center.getBlock().getRelative(x - 1, y - 1, z - 1).getType()+" at "+x+","+y+","+z+".");
                     if ( ( pattern[x][y][z] != center.getBlock().getRelative(x - 1, y - 1, z - 1).getType() ) &&
                          ( ( pattern[x][y][z] != null ) ) )
                     {
-                        mochaccino.sendMessage("Pattern don't match.");
+                        //mochaccino.sendMessage("Pattern don't match.");
                         return false;
                     }
                 }
             }
         }
-        mochaccino.sendMessage("Pattern matched.");
+        //mochaccino.sendMessage("Pattern matched.");
         return true;
     }
 
@@ -255,7 +282,7 @@ public class Replicator implements ConfigurationSerializable
                     if ( nextBlock.getBlock().getType().equals(Pattern.getCenter()) )
                     {
                         centers.add(nextBlock);
-                        mochaccino.sendMessage(nextBlock.getBlock().getType()+" found at "+nextBlock.getBlockX()+","+nextBlock.getBlockY()+","+nextBlock.getBlockZ());
+                        //mochaccino.sendMessage(nextBlock.getBlock().getType()+" found at "+nextBlock.getBlockX()+","+nextBlock.getBlockY()+","+nextBlock.getBlockZ());
                     }
                 }
             }
@@ -268,17 +295,17 @@ public class Replicator implements ConfigurationSerializable
      * Returns null if player is not owner or user of the replicator.
      *
      * @param loc        center of the replicator
-     * @param playerName name of the player
+     * @param player    the player entity
      * @return Replicator
      */
-    public static Replicator getOrCreate( Location loc, String playerName )
+    public static Replicator getOrCreate( Location loc, Player player )
     {
         Replicator rep = allReplicators.get(loc);
 
         // replicator already exists
         if ( rep != null )
         {
-            if ( rep.isOwner(playerName) || rep.isUser(playerName) )
+            if ( rep.isOwner(player.getName()) || rep.isUser(player.getName()) )
             {
                 return rep;
             }
@@ -290,20 +317,56 @@ public class Replicator implements ConfigurationSerializable
         // replicator does not exist, create one
         else
         {
-            rep = new Replicator(playerName, loc);
+            rep = new Replicator(player.getName(), loc);
             allReplicators.put(loc, rep);
-            try {
-                Replicator.saveReplicators();
-            }
-            catch ( IOException e )
-            {
-                Plugin.instance.getServer().getPlayer(playerName).sendMessage(Messages.couldNotSave);
-                Plugin.instance.getLogger().severe("Could not save replicators to file: " + e.getMessage());
-            }
+            player.sendMessage(Messages.newReplicator(rep));
+            Replicator.saveReplicators(player.getName());
             return rep;
         }
     }
 
+    /**
+     * Returns all Replicators, which includes the Block at Location loc.
+     * @param loc   Location of the current Block
+     * @return ArrayList of Replicators
+     */
+    public static ArrayList<Replicator> getReplicators(Location loc)
+    {
+        ArrayList<Location> locs = getReplicatorLocations(loc);
+        ArrayList<Replicator> reps = new ArrayList<Replicator>();
+        for(Location center:locs)
+        {
+            if(allReplicators.get(center)!=null)
+                reps.add(allReplicators.get(center));
+        }
+        return reps;
+    }
+
+    public static ArrayList<Replicator> getUsableReplicators(Location loc, String player)
+    {
+        ArrayList<Location> locs = getReplicatorLocations(loc);
+        ArrayList<Replicator> reps = new ArrayList<Replicator>();
+        for(Location center:locs)
+        {
+            Replicator rep = allReplicators.get(center);
+            if(rep!=null&&rep.isUsable(player))
+                reps.add(rep);
+        }
+        return reps;
+    }
+
+    public static ArrayList<Replicator> getOwnReplicators(Location loc, String player)
+    {
+        ArrayList<Location> locs = getReplicatorLocations(loc);
+        ArrayList<Replicator> reps = new ArrayList<Replicator>();
+        for(Location center:locs)
+        {
+            Replicator rep = allReplicators.get(center);
+            if(rep!=null&&rep.isOwner(player))
+                reps.add(rep);
+        }
+        return reps;
+    }
     /**
      * Get a replicator with the specified name. Returns null if player
      * is not owner or user or if replicator does not exist.
@@ -318,7 +381,7 @@ public class Replicator implements ConfigurationSerializable
         {
             if ( rep.getName().equals(repName) )
             {
-                if ( rep.isOwner(playerName) || rep.isUser(playerName) )
+                if(rep.isUsable(playerName))
                 {
                     return rep;
                 }
@@ -347,6 +410,7 @@ public class Replicator implements ConfigurationSerializable
         {
             if ( rep.isUser(playerName) )
             {
+                //mochaccino.sendMessage("You are User for "+rep.getName());
                 reps.add(rep);
             }
         }
@@ -371,9 +435,16 @@ public class Replicator implements ConfigurationSerializable
         replicatorsFileConf.getList(keyReplicators);
     }
 
-    public static void saveReplicators() throws IOException
+    public static void saveReplicators(String playerName)
     {
-        replicatorsFileConf.set(keyReplicators, new ArrayList<Object>(allReplicators.values()));
-        replicatorsFileConf.save(replicatorsFile);
+        try {
+            replicatorsFileConf.set(keyReplicators, new ArrayList<Object>(allReplicators.values()));
+            replicatorsFileConf.save(replicatorsFile);
+        }
+        catch ( IOException e )
+        {
+            Plugin.instance.getServer().getPlayer(playerName).sendMessage(Messages.couldNotSave);
+            Plugin.instance.getLogger().severe("Could not save replicators to file: " + e.getMessage());
+        }
     }
 }

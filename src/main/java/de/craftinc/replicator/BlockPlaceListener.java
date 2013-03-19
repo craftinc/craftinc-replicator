@@ -30,15 +30,15 @@ public class BlockPlaceListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlaced( BlockPlaceEvent event )
     {
-        ArrayList<Location> replicators = Replicator.getReplicators(event.getBlockPlaced().getLocation());
+        ArrayList<Location> replicators = Replicator.getReplicatorLocations(event.getBlockPlaced().getLocation());
         if ( !replicators.isEmpty() )
         {
             for ( Location loc : replicators )
             {
-                Replicator rep = Replicator.getOrCreate(loc, event.getPlayer().getName());
+                Replicator rep = Replicator.getOrCreate(loc, event.getPlayer());
                 if ( rep != null )
                 {
-                    event.getPlayer().sendMessage(Messages.newReplicator(rep));
+
                 }
             }
         }

@@ -25,6 +25,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 
@@ -51,7 +52,7 @@ public class PlayerInteractEntityListener implements Listener
                 break;
             }
         }
-
+        //Replicator.mochaccino.sendMessage("ItemFrame found "+itemFrame.getEntityId());
         // if no item frame was found: return! (strange and should NEVER happen as long as the world is not upside down!)
         if ( itemFrame == null )
         {
@@ -65,33 +66,30 @@ public class PlayerInteractEntityListener implements Listener
         }
 
         // find replicator centers which are suitable for this item frame
-        ArrayList<Location> replicatorCenters = Replicator.getReplicators(event.getRightClicked().getLocation());
+        //Replicator.mochaccino.sendMessage(itemFrame.getAttachedFace() + "");
+        ArrayList<Replicator> replicators = Replicator.getUsableReplicators(event.getRightClicked().getLocation().getBlock().getRelative(itemFrame.getAttachedFace()).getLocation(),event.getPlayer().getName());
 
         // do nothing if no replicator centers have been found
-        if ( replicatorCenters.isEmpty() )
+        if ( replicators.isEmpty() )
         {
+            //Replicator.mochaccino.sendMessage("No replicator found.");
             return;
         }
 
         // get the replicators from database for these centers
-        for ( Location replicatorCenter : replicatorCenters )
+        for ( Replicator replicator : replicators )
         {
-            Replicator replicator = Replicator.getOrCreate(replicatorCenter, event.getPlayer().getName());
-
-            // replicator can be null if the player is not user and not owner
-            if ( replicator == null )
-            {
-                continue;
-            }
 
             // from here on we have a valid replicator and a valid item
             // that's why we cancel the event
             event.setCancelled(true);
 
             // and spawn the items at the center location of the replicator
+            ItemStack stack = itemFrame.getItem();
+            stack.setAmount(64);
             event.getPlayer().getWorld().dropItemNaturally(
-                    replicatorCenter.getBlock().getRelative(Replicator.getDirection(replicatorCenter)).getLocation(),
-                    itemFrame.getItem());
+                    replicator.getCenter().getBlock().getRelative(Replicator.getDirection(replicator.getCenter())).getLocation(),
+                    stack);
         }
     }
 }
